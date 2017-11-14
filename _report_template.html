@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Route Export</title>
+    </head>
+    <body>
+        <h1>Report Summary</h1>
+        <p>
+          -----------------------------------
+        </p>
+        {{ range $statusCode, $routes := . }}
+          <h3>
+            <b> Status Code {{ $statusCode }} : {{ len $routes }} routes </b>
+          </h3>
+        {{ end }}
+        <p>
+          -----------------------------------
+        </p>
+
+        <h1>Report Breakdown</h1>
+        <table>
+          <tr>
+            <th> Route </th>
+            <th> Status Code </th>
+          </tr>
+          {{ range $statusCode, $routes := . }}
+            {{ range $index, $route := $routes }}
+            <tr>
+              <td>
+                {{ $route.Url }}
+              </td>
+              <td>
+                {{ $route.Code }}
+              </td>
+            </tr>
+            {{ end }}
+          {{ end }}
+        </table>
+
+    </body>
+</html>
