@@ -1,10 +1,10 @@
 package main
 
 import (
-  "bufio"
-  "encoding/csv"
-  "fmt"
-  "io"
+  // "bufio"
+  // "encoding/csv"
+  // "fmt"
+  // "io"
   // "io/ioutil"
   "log"
   "net/http"
@@ -30,25 +30,21 @@ func main(){
   _, err := os.Create("results.txt")
   checkError(err)
 
-  // // 2. Get http response with links
-  // linksResponse, err := http.Get("https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv")
-  // if err != nil {
-  //   log.Fatal(err)
-  // }
-  // defer linksResponse.Body.Close()
-  //
+  // 2. Get http response with links
+  linksResponse, err := http.Get("https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv")
+  checkError(err)
+  defer linksResponse.Body.Close()
+
   // // 3. Create a new file, output.csv (if it doesn't already exist) to write results to
-  // outputFile, err := os.Create("output.csv")
-  // if err != nil {
-  //   log.Fatal(err)
-  // }
-  //
-  // io.Copy(outputFile, linksResponse.Body)
-  //
+  outputFile, err := os.Create("output.csv")
+  checkError(err)
+
+  io.Copy(outputFile, linksResponse.Body)
+
   // // 3. Read each line
   // // scanner := bufio.NewScanner(outputFile)
   //
-  // // 4. Open file and read each comma separated value
+  // // 4. Open file and parse each comma separated value
   // outputFile, err = os.Open("output.csv")
   // reader := csv.NewReader(bufio.NewReader(outputFile))
   //
@@ -87,3 +83,14 @@ func main(){
   // }
 
 }
+
+
+
+// Code for writing request and response headers and body
+// client := &http.Client{}
+//
+// request, err := http.NewRequest("GET", "https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv", nil)
+// response, err := client.Do(request)
+//
+// request.Write(outputFile)
+// response.Write(outputFile)
