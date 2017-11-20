@@ -1,7 +1,7 @@
 parliament.uk-response-checker
 response_checker
 .DS_Store
-output.csv
+output.txt
 results.txt
 links.txt
-test.rb
+somelines.txt
