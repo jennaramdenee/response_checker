@@ -10,8 +10,10 @@ import (
   // "io/ioutil"
   "log"
   // "net/http"
-  // "strings"
   "os"
+  // "regexp"
+  // "strings"
+  // "unicode/utf8"
 )
 
 const baseUrl = "https://beta.parliament.uk"
@@ -28,20 +30,31 @@ type Link struct {
 }
 
 func main(){
-  // // 1. Create a new file, result.txt (if it doesn't already exist)
+  // 1. Create a new file, result.txt (if it doesn't already exist)
   // _, err := os.Create("results.txt")
   // checkError(err)
-  //
-  // // 2. Get http response with links
+
+  // 2. Get http response with links
   // linksResponse, err := http.Get("https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv")
   // checkError(err)
   // defer linksResponse.Body.Close()
-  //
+
+  // body, err := ioutil.ReadAll(linksResponse.Body)
+  // bodyString := string(body)
+
   // // 3. Create a new file, output.csv (if it doesn't already exist) to write results to
   // outputFile, err := os.Create("output.txt")
   // checkError(err)
-  //
-  // io.Copy(outputFile, linksResponse.Body)
+  // defer outputFile.Close()
+
+  // Replace carriage return with new line
+  // var r = regexp.MustCompile("\r")
+  // s := r.ReplaceAllString(bodyString, "\n")
+
+  // Write response to outputFile
+  // writer := bufio.NewWriter(outputFile)
+  // fmt.Fprintf(writer, "%v", s)
+
 
   // Create new file for lines
   linesFile, err := os.Create("somelines.txt")
@@ -52,14 +65,14 @@ func main(){
   checkError(err)
   defer outputFile.Close()
 
-  reader := csv.NewReader(bufio.NewReader(outputFile))
+  csvReader := csv.NewReader(outputFile)
 
   // Create an array containing 4 comma separated values
   value := ""
-  // line := []string{}
 
   for {
-    separatedValues, err := reader.Read()
+    separatedValues, err := csvReader.Read()
+    checkError(err)
     if err == io.EOF {
       break
     }
@@ -68,102 +81,38 @@ func main(){
     writer := bufio.NewWriter(linesFile)
 
     for i, word := range separatedValues {
-      fmt.Println("Index: ", i, "Word: ", word)
-      if i == 6 {
-        fmt.Println("hello", word)
-      }
+      fmt.Printf("number: %v Word: %v\n", i, word)
       if i % 4 == 0 && string(word) != "" {
         value = separatedValues[i + 1]
         fmt.Fprintf(writer, "%v\n", value)
         value = ""
         writer.Flush()
-        // contixnue
       } else if (i + 1) == length {
         break
       }
     }
   }
-  // manipulateLines()
 }
 
-// Do some stuff with that array ***
-// func manipulateLines() {
-//   // Open resultFile
-//   resultFile, err := os.Open("results.txt")
-//   checkError(err)
-//   defer resultFile.Close()
-//
-//   // Go through somelines.txt and do all that crap
-//   content, err := ioutil.ReadFile("somelines.txt")
-//   checkError(err)
-//
-//   var v interface{}
-//   if err := json.Unmarshal([]byte(content), &v); err != nil {
-//       fmt.Println(err)
-//       fmt.Println("hello")
-//       return
-//   }
-//   // fmt.Println(string(v))
-//   fmt.Printf("%#v\n", v)
 
+resourceIdMap := map[string]int{
+  ":source": "mnisId",
+  ":id": "3299",
+  ":letters": "g",
+  ":person": "TyNGhslR",
+  ":contact-point",
+  ":constituency": "3WLS0fFd",
+  ":party": "DIifZMjq",
+  ":house": "1AFu55Hs",
+  ":parliament": "b0t56VVL",
+  ":postcode": "SW1A 0AA",
+  ":medium": "3UJ7otWM",
+  ":resource": "S70cUJGM",
+}
 
-  // lines := strings.Split(string(content), "\n")
-  // fmt.Println(lines)
-  // linesFile, err := os.Open("somelines.txt")
-  // checkError(err)
-  // defer linesFile.Close()
-
-  // Read each line
-  // scanner := bufio.NewScanner(linesFile)
-  //
-  // reader := bufio.NewReader(linesFile)
-  // lines, _, err := reader.ReadLine()
-  // for i, line range lines {
-  //   fmt.Println(lines)
-  // }
-
-  // For each line
-
-
-
-
-  // for scanner.Scan(){
-  //   line := scanner.Text()
-  //   fmt.Println(reflect.TypeOf(line))
-  //   break
-
-    // // Check if arr[1] is empty
-    // if string(line[0]) != "" {
-    //   // If not, get URL from [2]
-    //   url := string(line[1])
-    //   // 4a. Create new Link object
-    //   link := Link{url: url}
-    //
-    //   // 4b. Visit link
-    //   response, err := http.Get(baseUrl + link.url)
-    //   if err != nil {
-    //     log.Fatal(err)
-    //   }
-    //   defer response.Body.Close()
-    //
-    //   // 4c. Get response code
-    //   link.code = response.StatusCode
-    //
-    //   // 4d. Write Response to file
-    //   writer := bufio.NewWriter(resultFile)
-    //   fmt.Fprintf(writer, "%v, %v\n", link.url, link.code)
-    //
-    //   writer.Flush()
-    // }
-
-  // }
-
-// }
-//
-
-
-
-
+func replaceResourceId(word string) {
+  if
+}
 
 // Code for writing request and response headers and body
 // client := &http.Client{}
