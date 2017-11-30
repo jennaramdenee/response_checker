@@ -2,9 +2,7 @@ package main
 
 import (
   "bufio"
-  // "bytes"
   "encoding/csv"
-  // "encoding/json"
   "fmt"
   "io"
   "io/ioutil"
@@ -13,7 +11,6 @@ import (
   "os"
   "regexp"
   "strings"
-  // "unicode/utf8"
 )
 
 const baseUrl = "https://beta.parliament.uk"
@@ -30,6 +27,11 @@ type Link struct {
 }
 
 func main(){
+  RetrieveLinks()
+  ParseLinks()
+}
+
+func RetrieveLinks() {
   // 2. Get http response with links
   linksResponse, err := http.Get("https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv")
   checkError(err)
@@ -50,11 +52,9 @@ func main(){
   // Write response to outputFile
   writer := bufio.NewWriter(outputFile)
   fmt.Fprintf(writer, "%v", s)
-
-  parseLinks()
 }
 
-func parseLinks() {
+func ParseLinks() {
   // Create a new file, result.txt (if it doesn't already exist)
   resultFile, err := os.Create("results.txt")
   checkError(err)
@@ -76,9 +76,9 @@ func parseLinks() {
     // Logic to separate out each link
     for i, word := range separatedValues {
       if i % 4 == 0 && string(word) != "" && string(separatedValues[i+1]) != "Route" {
-        value = replaceResourceId(separatedValues[i + 1])
+        value = ReplaceResourceId(separatedValues[i + 1])
         // Make call to link and record response code
-        recordLinkStatus(value, resultFile)
+        RecordLinkStatus(value, resultFile)
         value = ""
       }
     }
@@ -88,8 +88,7 @@ func parseLinks() {
   }
 }
 
-
-func recordLinkStatus(url string, resultFile *os.File){
+func RecordLinkStatus(url string, resultFile *os.File){
   // Create new Link object
   link := Link{url: url}
 
@@ -108,7 +107,7 @@ func recordLinkStatus(url string, resultFile *os.File){
   writer.Flush()
 }
 
-func replaceResourceId(word string) string {
+func ReplaceResourceId(word string) string {
   resourceIdMap := map[string]string {
     ":source": "mnisId",
     ":id": "3299",
