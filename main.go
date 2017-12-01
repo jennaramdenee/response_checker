@@ -71,6 +71,9 @@ func ParseLinks() {
 
   for {
     separatedValues, err := csvReader.Read()
+    if err == io.EOF {
+      break
+    }
     checkError(err)
 
     // Logic to separate out each link
@@ -81,9 +84,6 @@ func ParseLinks() {
         RecordLinkStatus(value, resultFile)
         value = ""
       }
-    }
-    if err == io.EOF {
-      break
     }
   }
 }

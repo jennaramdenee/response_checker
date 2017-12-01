@@ -4,6 +4,8 @@ import (
   "io/ioutil"
   "log"
   "os"
+  "reflect"
+  "strings"
   "testing"
   "."
 )
@@ -24,7 +26,7 @@ func TestNotReplaceResourceId(t *testing.T){
   }
 }
 
-func createTestFiles() (testResultFile *os.File) {
+func createTestResultFiles() (testResultFile *os.File) {
   testResultFile, err := os.Create("test_results.txt")
   if err != nil {
     log.Fatal(err)
@@ -32,27 +34,42 @@ func createTestFiles() (testResultFile *os.File) {
   return testResultFile
 }
 
-func readTestFiles() (testResultFileContents []byte) {
-  testResultFileContents, err := ioutil.ReadFile("test_results.txt")
+func readTestFiles(name string) (testResultFileContents []byte) {
+  testResultFileContents, err := ioutil.ReadFile(name)
   if err != nil {
     log.Fatal(err)
   }
   return testResultFileContents
 }
 
+func createTestOutput(contents string){
+  testOutput := []byte(contents)
+  err := ioutil.WriteFile("output.txt", testOutput, 0644)
+  if err != nil {
+    log.Fatal(err)
+  }
+}
+
+func removeFiles(name string){
+  err := os.Remove(name)
+  if err != nil {
+    log.Fatal(err)
+  }
+}
+
 func TestRecordLinkStatusOK(t *testing.T) {
   testUrl := "/"
 
-  testResultFile := createTestFiles()
+  testResultFile := createTestResultFiles()
   defer testResultFile.Close()
 
   main.RecordLinkStatus(testUrl, testResultFile)
 
-  testResultFileContents := readTestFiles()
+  testResultFileContents := readTestFiles("test_results.txt")
 
   actualResult := string(testResultFileContents)
   expectedResult := "/, 200"
-  if actualResult != expectedResult {
+  if reflect.DeepEqual(actualResult, expectedResult) {
     t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
   }
 }
@@ -60,20 +77,30 @@ func TestRecordLinkStatusOK(t *testing.T) {
 func TestRecordLinkStatusNotFound(t *testing.T) {
   testUrl := "/someteststuff"
 
-  testResultFile := createTestFiles()
+  testResultFile := createTestResultFiles()
   defer testResultFile.Close()
 
   main.RecordLinkStatus(testUrl, testResultFile)
 
-  testResultFileContents := readTestFiles()
+  testResultFileContents := readTestFiles("test_results.txt")
 
   actualResult := string(testResultFileContents)
   expectedResult := "/someteststuff, 404"
-  if actualResult != expectedResult {
+  if reflect.DeepEqual(actualResult, expectedResult) {
     t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
   }
 }
 
-func TestParseLinks() {
-  
+func TestParseLinks(t *testing.T) {
+  removeFiles("results.txt")
+  createTestOutput("On beta,Route,What it is,Page type")
+  main.ParseLinks()
+
+  testFileContents := readTestFiles("results.txt")
+
+  body := string(testFileContents)
+
+  if strings.Contains(body, "Route") {
+    t.Fatalf("Route should not appear in results.txt file")
+  }
 }
