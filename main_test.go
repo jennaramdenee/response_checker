@@ -1,6 +1,7 @@
 package main_test
 
 import (
+  "fmt"
   "io/ioutil"
   "log"
   "os"
@@ -91,7 +92,7 @@ func TestRecordLinkStatusNotFound(t *testing.T) {
   }
 }
 
-func TestParseLinks(t *testing.T) {
+func TestParseLinksNotRoute(t *testing.T) {
   removeFiles("results.txt")
   createTestOutput("On beta,Route,What it is,Page type")
   main.ParseLinks()
@@ -102,5 +103,33 @@ func TestParseLinks(t *testing.T) {
 
   if strings.Contains(body, "Route") {
     t.Fatalf("Route should not appear in results.txt file")
+  }
+}
+
+func TestParseLinks(t *testing.T) {
+  removeFiles("results.txt")
+  createTestOutput("✓,/search,The search form,Search form")
+  main.ParseLinks()
+
+  testFileContents := readTestFiles("results.txt")
+
+  body := string(testFileContents)
+
+  if !strings.Contains(body, "/search") {
+    t.Fatalf("/search should appear in results.txt file")
+  }
+}
+
+func TestParseLinksNotOnBeta(t *testing.T) {
+  removeFiles("results.txt")
+  createTestOutput(",/mps,Something about MPs,Test MP")
+  main.ParseLinks()
+
+  testFileContents := readTestFiles("results.txt")
+
+  body := string(testFileContents)
+
+  if strings.Contains(body, "/mps") {
+    t.Fatalf("/mps should not appear in results.txt file")
   }
 }
