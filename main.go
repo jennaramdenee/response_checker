@@ -32,7 +32,7 @@ func main(){
 }
 
 func RetrieveLinks() {
-  // 2. Get http response with links
+  // Get http response with links
   linksResponse, err := http.Get("https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv")
   checkError(err)
   defer linksResponse.Body.Close()
@@ -40,7 +40,7 @@ func RetrieveLinks() {
   body, err := ioutil.ReadAll(linksResponse.Body)
   bodyString := string(body)
 
-  // // 3. Create a new file, output.csv (if it doesn't already exist) to write results to
+  // Create a new file, output.csv (if it doesn't already exist) to write results to
   outputFile, err := os.Create("output.txt")
   checkError(err)
   defer outputFile.Close()
@@ -78,6 +78,7 @@ func ParseLinks() {
 
     // Logic to separate out each link
     for i, word := range separatedValues {
+      // Find links which are live on beta and not column heading (i.e. the ones we care about)
       if i % 4 == 0 && string(word) != "" && string(separatedValues[i+1]) != "Route" {
         value = ReplaceResourceId(separatedValues[i + 1])
         // Make call to link and record response code
