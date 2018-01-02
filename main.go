@@ -75,7 +75,7 @@ func ParseLinks() {
     for i, route := range routeInfo {
       // Find links which are live on beta and not column heading (i.e. the ones we care about)
       if i % 4 == 0 && string(route) != "" && string(routeInfo[i+1]) != "Route" {
-        routeArray = ReplaceResourceId(routeInfo[i + 1])
+        routeArray = append(routeArray, ReplaceResourceId(routeInfo[i + 1])...)
       }
     }
   }
