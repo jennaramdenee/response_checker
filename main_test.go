@@ -14,16 +14,16 @@ import (
 func TestReplaceResourceId(t *testing.T){
   expectedResult := "/people/lookup?source=mnisId&id=3299"
   actualResult := main.ReplaceResourceId("/people/lookup?source=:source&id=:id")
-  if actualResult != expectedResult {
-    t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
+  if actualResult[0] != expectedResult {
+    t.Fatalf("Expected %s but got %s", expectedResult, actualResult[0])
   }
 }
 
 func TestNotReplaceResourceId(t *testing.T){
   expectedResult := "test/hello/:world"
   actualResult := main.ReplaceResourceId("test/hello/:world")
-  if actualResult != expectedResult {
-    t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
+  if actualResult[0] != expectedResult {
+    t.Fatalf("Expected %s but got %s", expectedResult, actualResult[0])
   }
 }
 
@@ -59,12 +59,13 @@ func removeFiles(name string){
 }
 
 func TestRecordLinkStatusOK(t *testing.T) {
-  testUrl := "/"
+  removeFiles("results.txt")
+  testUrl := []string{"/"}
 
   testResultFile := createTestResultFiles()
   defer testResultFile.Close()
 
-  main.RecordLinkStatus(testUrl, testResultFile)
+  main.RecordLinkStatus(testUrl)
 
   testResultFileContents := readTestFiles("test_results.txt")
 
@@ -76,12 +77,13 @@ func TestRecordLinkStatusOK(t *testing.T) {
 }
 
 func TestRecordLinkStatusNotFound(t *testing.T) {
-  testUrl := "/someteststuff"
+  removeFiles("results.txt")
+  testUrls := []string {"/someteststuff", "/someotherstuff"}
 
   testResultFile := createTestResultFiles()
   defer testResultFile.Close()
 
-  main.RecordLinkStatus(testUrl, testResultFile)
+  main.RecordLinkStatus(testUrls)
 
   testResultFileContents := readTestFiles("test_results.txt")
 
@@ -131,30 +133,5 @@ func TestParseLinksNotOnBeta(t *testing.T) {
 
   if strings.Contains(body, "/mps") {
     t.Fatalf("/mps should not appear in results.txt file")
-  }
-}
-
-func TestLettersGenerator(t *testing.T) {
-  actualResult := main.LettersGenerator("test/:letters")
-
-  if len(actualResult) != 26 {
-    t.Fatalf("Wrong number of results returned, got %v, expected %v", len(actualResult), 26)
-  }
-
-  if actualResult[0] != "test/a" {
-    t.Fatalf("Incorrect URL formed, got %v, expected %v", actualResult[0], "test/a")
-  }
-
-  if actualResult[25] != "test/z" {
-    t.Fatalf("Incorrect URL formed, got %v, expected %v", actualResult[0], "test/z")
-  }
-}
-
-func TestNoLettersGenerator(t *testing.T) {
-  expectedResult := 0
-  actualResult := len(main.LettersGenerator("test/:noletters"))
-
-  if expectedResult != actualResult {
-    t.Fatalf("Wrong number of letter URLs returned, got %v, expected %v", actualResult, expectedResult)
   }
 }

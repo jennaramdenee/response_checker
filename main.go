@@ -55,11 +55,6 @@ func RetrieveLinks() {
 }
 
 func ParseLinks() {
-  // Create a new file, result.txt (if it doesn't already exist)
-  resultFile, err := os.Create("results.txt")
-  checkError(err)
-  defer resultFile.Close()
-
   // Open output file and parse each comma separated value
   outputFile, err := os.Open("output.txt")
   checkError(err)
@@ -67,52 +62,58 @@ func ParseLinks() {
 
   csvReader := csv.NewReader(outputFile)
 
-  value := ""
+  routeArray := []string{}
 
   for {
-    separatedValues, err := csvReader.Read()
+    routeInfo, err := csvReader.Read()
     if err == io.EOF {
       break
     }
     checkError(err)
 
     // Logic to separate out each link
-    for i, word := range separatedValues {
+    for i, route := range routeInfo {
       // Find links which are live on beta and not column heading (i.e. the ones we care about)
-      if i % 4 == 0 && string(word) != "" && string(separatedValues[i+1]) != "Route" {
-        value = ReplaceResourceId(separatedValues[i + 1])
-        // Make call to link and record response code
-        RecordLinkStatus(value, resultFile)
-        value = ""
+      if i % 4 == 0 && string(route) != "" && string(routeInfo[i+1]) != "Route" {
+        routeArray = ReplaceResourceId(routeInfo[i + 1])
       }
     }
   }
+
+  RecordLinkStatus(routeArray)
+
 }
 
-func RecordLinkStatus(url string, resultFile *os.File){
-  // Create new Link object
-  link := Link{url: url}
-
-  // Visit link
-  response, err := http.Get(baseUrl + link.url)
+func RecordLinkStatus(routes []string){
+  // Create a new file, result.txt (if it doesn't already exist)
+  resultFile, err := os.Create("results.txt")
   checkError(err)
-  defer response.Body.Close()
+  defer resultFile.Close()
 
-  // Get response code
-  link.code = response.StatusCode
+  for _, route := range routes {
+    // Create new Link object
+    link := Link{url: route}
 
-  // Write Response to file
-  writer := bufio.NewWriter(resultFile)
-  fmt.Fprintf(writer, "%v, %v\n", link.url, link.code)
+    // Visit link
+    response, err := http.Get(baseUrl + link.url)
+    checkError(err)
+    defer response.Body.Close()
 
-  writer.Flush()
+    // Get response code
+    link.code = response.StatusCode
+
+    // Write Response to file
+    writer := bufio.NewWriter(resultFile)
+    fmt.Fprintf(writer, "%v, %v\n", link.url, link.code)
+
+    writer.Flush()
+  }
 }
 
-func ReplaceResourceId(word string) string {
+func ReplaceResourceId(route string) []string {
   resourceIdMap := map[string]string {
     ":source": "mnisId",
     ":id": "3299",
-    ":letters": "g",
     ":person": "TyNGhslR",
     ":contact-point": "wk1atnfh",
     ":constituency": "3WLS0fFd",
@@ -125,28 +126,28 @@ func ReplaceResourceId(word string) string {
     ":resource": "S70cUJGM",
   }
 
+  routeArray := []string{}
+  var r = regexp.MustCompile(":letters")
+
   // Replace with valid ids
   for id, value := range resourceIdMap {
-    if strings.Contains(word, id) {
-      word = strings.Replace(word, id, value, -1)
-    }
-  }
-  return word
-}
-
-func LettersGenerator(word string) []string {
-  alphabet := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
-    "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" }
-
-  var r = regexp.MustCompile(":letters")
-  letterUrls := []string{}
-
-  for _, letter := range alphabet {
-    if r.MatchString(word) {
-      s := r.ReplaceAllString(word, letter)
-      letterUrls = append(letterUrls, s)
+    if strings.Contains(route, id) {
+      route = strings.Replace(route, id, value, -1)
     }
   }
 
-  return letterUrls
+  // If any route contains :letters, generate 26 routes for each letter
+  if strings.Contains(route, ":letters") {
+    alphabet := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
+      "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" }
+
+    for _, letter := range alphabet {
+      s := r.ReplaceAllString(route, letter)
+      routeArray = append(routeArray, s)
+    }
+
+  } else {
+    routeArray = append(routeArray, route)
+  }
+  return routeArray
 }
