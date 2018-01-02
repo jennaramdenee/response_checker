@@ -12,16 +12,16 @@ import (
 )
 
 func TestReplaceResourceId(t *testing.T){
-  expectedResult := "test/mnisId/hello/g"
-  actualResult := main.ReplaceResourceId("test/:source/hello/:letters")
+  expectedResult := "/people/lookup?source=mnisId&id=3299"
+  actualResult := main.ReplaceResourceId("/people/lookup?source=:source&id=:id")
   if actualResult != expectedResult {
     t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
   }
 }
 
 func TestNotReplaceResourceId(t *testing.T){
-  expectedResult := "test/hello/world"
-  actualResult := main.ReplaceResourceId("test/hello/world")
+  expectedResult := "test/hello/:world"
+  actualResult := main.ReplaceResourceId("test/hello/:world")
   if actualResult != expectedResult {
     t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
   }
@@ -135,11 +135,10 @@ func TestParseLinksNotOnBeta(t *testing.T) {
 }
 
 func TestLettersGenerator(t *testing.T) {
-  expectedResult := 26
   actualResult := main.LettersGenerator("test/:letters")
 
-  if expectedResult != len(actualResult) {
-    t.Fatalf("Wrong number of results returned, got %v, expected %v", len(actualResult), expectedResult)
+  if len(actualResult) != 26 {
+    t.Fatalf("Wrong number of results returned, got %v, expected %v", len(actualResult), 26)
   }
 
   if actualResult[0] != "test/a" {
