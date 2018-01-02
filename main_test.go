@@ -1,7 +1,7 @@
 package main_test
 
 import (
-  "fmt"
+  // "fmt"
   "io/ioutil"
   "log"
   "os"
@@ -131,5 +131,31 @@ func TestParseLinksNotOnBeta(t *testing.T) {
 
   if strings.Contains(body, "/mps") {
     t.Fatalf("/mps should not appear in results.txt file")
+  }
+}
+
+func TestLettersGenerator(t *testing.T) {
+  expectedResult := 26
+  actualResult := main.LettersGenerator("test/:letters")
+
+  if expectedResult != len(actualResult) {
+    t.Fatalf("Wrong number of results returned, got %v, expected %v", len(actualResult), expectedResult)
+  }
+
+  if actualResult[0] != "test/a" {
+    t.Fatalf("Incorrect URL formed, got %v, expected %v", actualResult[0], "test/a")
+  }
+
+  if actualResult[25] != "test/z" {
+    t.Fatalf("Incorrect URL formed, got %v, expected %v", actualResult[0], "test/z")
+  }
+}
+
+func TestNoLettersGenerator(t *testing.T) {
+  expectedResult := 0
+  actualResult := len(main.LettersGenerator("test/:noletters"))
+
+  if expectedResult != actualResult {
+    t.Fatalf("Wrong number of letter URLs returned, got %v, expected %v", actualResult, expectedResult)
   }
 }
