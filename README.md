@@ -11,7 +11,7 @@ git clone https://github.com/jennaramdenee/response_checker
 cd response_checker
 ```
 
-2. Set base URL in `main.go` file
+2. Set base URL in `src/main.go` file
 
 3. Run the script
 ```kernal

@@ -66,11 +66,11 @@ func TestLettersReplaceResourceId(t *testing.T){
   }
 }
 
-func TestRecordLinkStatusOK(t *testing.T) {
+func TestRecordRouteStatusOK(t *testing.T) {
   removeFiles("results.txt")
   testUrl := []string{"/"}
 
-  main.RecordLinkStatus(testUrl)
+  main.RecordRouteStatus(testUrl)
 
   testResultFileContents := readTestFiles("results.txt")
 
@@ -81,11 +81,11 @@ func TestRecordLinkStatusOK(t *testing.T) {
   }
 }
 
-func TestRecordLinkStatusNotFound(t *testing.T) {
+func TestRecordRouteStatusNotFound(t *testing.T) {
   removeFiles("results.txt")
   testUrls := []string {"/someteststuff", "/someotherstuff"}
 
-  main.RecordLinkStatus(testUrls)
+  main.RecordRouteStatus(testUrls)
 
   testResultFileContents := readTestFiles("results.txt")
 
@@ -96,10 +96,10 @@ func TestRecordLinkStatusNotFound(t *testing.T) {
   }
 }
 
-func TestParseLinksNotRoute(t *testing.T) {
+func TestParseRouteNotRoute(t *testing.T) {
   removeFiles("results.txt")
   createTestOutput("On beta,Route,What it is,Page type")
-  main.ParseLinks()
+  main.ParseRoutes()
 
   testFileContents := readTestFiles("results.txt")
 
@@ -110,10 +110,10 @@ func TestParseLinksNotRoute(t *testing.T) {
   }
 }
 
-func TestParseLinks(t *testing.T) {
+func TestParseRoute(t *testing.T) {
   removeFiles("results.txt")
   createTestOutput("✓,/search,The search form,Search form")
-  main.ParseLinks()
+  main.ParseRoutes()
 
   testFileContents := readTestFiles("results.txt")
 
@@ -124,10 +124,10 @@ func TestParseLinks(t *testing.T) {
   }
 }
 
-func TestParseLinksNotOnBeta(t *testing.T) {
+func TestParseRoutesNotOnBeta(t *testing.T) {
   removeFiles("results.txt")
   createTestOutput(",/mps,Something about MPs,Test MP")
-  main.ParseLinks()
+  main.ParseRoutes()
 
   testFileContents := readTestFiles("results.txt")
 
@@ -138,10 +138,10 @@ func TestParseLinksNotOnBeta(t *testing.T) {
   }
 }
 
-func TestManyParseLinks(t *testing.T) {
+func TestManyParseRoutes(t *testing.T) {
   removeFiles("results.txt")
   createTestOutput("✓,/people/a-z,Namespace for navigation of all people,Namespace\n✓,/houses/:house/members,All members of a house ever,Paginated list\n,/mps,Something about MPs,Test MP")
-  main.ParseLinks()
+  main.ParseRoutes()
 
   testFileContents := readTestFiles("results.txt")
 
