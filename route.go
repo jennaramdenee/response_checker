@@ -2,7 +2,9 @@ package main
 
 import (
   "encoding/csv"
+  "encoding/json"
   "io"
+  "io/ioutil"
   "os"
   "regexp"
   "strings"
@@ -42,26 +44,21 @@ func ParseRoutes() {
 }
 
 func ReplaceResourceId(route string) []string {
-  resourceIdMap := map[string]string {
-    ":source": "mnisId",
-    ":id": "3299",
-    ":person": "TyNGhslR",
-    ":contact-point": "wk1atnfh",
-    ":constituency": "3WLS0fFd",
-    ":party": "DIifZMjq",
-    ":house": "1AFu55Hs",
-    ":parliament": "b0t56VVL",
-    ":place": "E15000006",
-    ":postcode": "SW1A 0AA",
-    ":medium": "3UJ7otWM",
-    ":resource": "S70cUJGM",
+  resourceMapFile, err := ioutil.ReadFile("./resource_map.json")
+  checkError(err)
+
+  var resourceMap map[string]string
+
+  if err := json.Unmarshal(resourceMapFile, &resourceMap); err != nil {
+    checkError(err)
   }
 
+  // Set up array to hold all routes
   routeArray := []string{}
   var r = regexp.MustCompile(":letters")
 
   // Replace with valid ids
-  for id, value := range resourceIdMap {
+  for id, value := range resourceMap {
     if strings.Contains(route, id) {
       route = strings.Replace(route, id, value, -1)
     }

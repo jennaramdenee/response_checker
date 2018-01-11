@@ -10,10 +10,11 @@ import (
 )
 
 const baseUrl = "https://beta.parliament.uk"
+const routeSource = "https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv"
 
 func RetrieveRouteList() {
   // Get http response with links
-  linksResponse, err := http.Get("https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv")
+  linksResponse, err := http.Get(routeSource)
   checkError(err)
   defer linksResponse.Body.Close()
 
@@ -40,6 +41,8 @@ func RecordRouteStatus(routes []string){
   checkError(err)
   defer resultFile.Close()
 
+  fmt.Println("Checking route responses\n")
+
   for _, route := range routes {
     // Create new Route object
     r := Route{url: route}
@@ -54,6 +57,7 @@ func RecordRouteStatus(routes []string){
 
     // Write Response to file
     writer := bufio.NewWriter(resultFile)
+    fmt.Printf("Route: %v, Status Code: %v\n", r.url, r.code)
     fmt.Fprintf(writer, "%v, %v\n", r.url, r.code)
 
     writer.Flush()
