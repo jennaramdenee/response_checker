@@ -5,7 +5,7 @@ import (
   "encoding/json"
   "io"
   "io/ioutil"
-  "os"
+  // "os"
   "regexp"
   "strings"
 )
@@ -15,13 +15,8 @@ type Route struct {
   code  int
 }
 
-func ParseRoutes() {
-  // Open output file and parse each comma separated value
-  outputFile, err := os.Open("output.txt")
-  checkError(err)
-  defer outputFile.Close()
-
-  csvReader := csv.NewReader(outputFile)
+func ParseRoutes(routesReader io.Reader) []string{
+  csvReader := csv.NewReader(routesReader)
 
   routeArray := []string{}
 
@@ -40,7 +35,7 @@ func ParseRoutes() {
       }
     }
   }
-  RecordRouteStatus(routeArray)
+  return routeArray
 }
 
 func ReplaceResourceId(route string) []string {

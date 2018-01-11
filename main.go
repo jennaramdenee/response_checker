@@ -1,6 +1,6 @@
 package main
 
 func main(){
-  RetrieveRouteList()
-  ParseRoutes()
+  routeArray := RetrieveRouteList()
+  RecordRouteStatus(routeArray)
 }

@@ -7,12 +7,16 @@ import (
   "net/http"
   "os"
   "regexp"
+  "strings"
+  // "strconv"
+
+  "gopkg.in/cheggaaa/pb.v1"
 )
 
 const baseUrl = "https://beta.parliament.uk"
 const routeSource = "https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv"
 
-func RetrieveRouteList() {
+func RetrieveRouteList() []string {
   // Get http response with links
   linksResponse, err := http.Get(routeSource)
   checkError(err)
@@ -21,18 +25,12 @@ func RetrieveRouteList() {
   body, err := ioutil.ReadAll(linksResponse.Body)
   bodyString := string(body)
 
-  // Create a new file, output.csv (if it doesn't already exist) to write results to
-  outputFile, err := os.Create("output.txt")
-  checkError(err)
-  defer outputFile.Close()
-
   // Replace carriage return with new line
   var r = regexp.MustCompile("\r")
   s := r.ReplaceAllString(bodyString, "\n")
 
-  // Write response to outputFile
-  writer := bufio.NewWriter(outputFile)
-  fmt.Fprintf(writer, "%v", s)
+  routesReader := strings.NewReader(s)
+  return ParseRoutes(routesReader)
 }
 
 func RecordRouteStatus(routes []string){
@@ -43,12 +41,23 @@ func RecordRouteStatus(routes []string){
 
   fmt.Println("Checking route responses\n")
 
+  // Create and start progress bar
+  progressBar := pb.StartNew(len(routes))
+
+
   for _, route := range routes {
     // Create new Route object
     r := Route{url: route}
 
+    // Create custom http client instance that does not follow redirects
+    client := &http.Client{
+      CheckRedirect: func(request *http.Request, via []*http.Request) error {
+        return http.ErrUseLastResponse
+      },
+    }
+
     // Visit link
-    response, err := http.Get(baseUrl + r.url)
+    response, err := client.Get(baseUrl + r.url)
     checkError(err)
     defer response.Body.Close()
 
@@ -57,9 +66,18 @@ func RecordRouteStatus(routes []string){
 
     // Write Response to file
     writer := bufio.NewWriter(resultFile)
-    fmt.Printf("Route: %v, Status Code: %v\n", r.url, r.code)
+    // fmt.Printf("Route: %v, Status Code: %v\n", r.url, r.code)
     fmt.Fprintf(writer, "%v, %v\n", r.url, r.code)
 
     writer.Flush()
+
+    // Update progress bar
+    // statusString := "Route: " + r.url + "Status Code: " + strconv.Itoa(r.code) + "\n"
+    // progressBar.Prefix(statusString)
+    progressBar.Increment()
+
   }
+
+  // Finish progress bar
+  progressBar.FinishPrint("Finished")
 }
