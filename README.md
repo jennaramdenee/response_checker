@@ -27,3 +27,6 @@ Tests can be run by using the following command:
 ```kernal
 go test -v
 ```
+
+### Caveats
+Currently, this script only supports the latin alphabet and not all Unicode characters.
