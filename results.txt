@@ -1,2 +1,0 @@
-/people/a-z, 200
-/houses/1AFu55Hs/members, 200
