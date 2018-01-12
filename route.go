@@ -11,8 +11,8 @@ import (
 )
 
 type Route struct {
-  url   string
-  code  int
+  Url   string
+  Code  int
 }
 
 func ParseRoutes(routesReader io.Reader) []string{
@@ -62,7 +62,7 @@ func ReplaceResourceId(route string) []string {
   // If any route contains :letters, generate 26 routes for each letter
   if strings.Contains(route, ":letters") {
     alphabet := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
-      "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" }
+      "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
 
     for _, letter := range alphabet {
       s := r.ReplaceAllString(route, letter)
