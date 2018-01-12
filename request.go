@@ -1,7 +1,7 @@
 package main
 
 import (
-  "bufio"
+  // "bufio"
   "fmt"
   "io/ioutil"
   "net/http"
@@ -44,10 +44,12 @@ func RecordRouteStatus(routes []string){
   // Create and start progress bar
   progressBar := pb.StartNew(len(routes))
 
+  // Create array for Route objects
+  routesObjectsArray := []Route{}
 
   for _, route := range routes {
     // Create new Route object
-    r := Route{url: route}
+    r := Route{Url: route}
 
     // Create custom http client instance that does not follow redirects
     client := &http.Client{
@@ -57,19 +59,22 @@ func RecordRouteStatus(routes []string){
     }
 
     // Visit link
-    response, err := client.Get(baseUrl + r.url)
+    response, err := client.Get(baseUrl + r.Url)
     checkError(err)
     defer response.Body.Close()
 
     // Get response code
-    r.code = response.StatusCode
+    r.Code = response.StatusCode
 
-    // Write Response to file
-    writer := bufio.NewWriter(resultFile)
-    // fmt.Printf("Route: %v, Status Code: %v\n", r.url, r.code)
-    fmt.Fprintf(writer, "%v, %v\n", r.url, r.code)
+    // // Write Response to file
+    // writer := bufio.NewWriter(resultFile)
+    // // fmt.Printf("Route: %v, Status Code: %v\n", r.url, r.code)
+    // fmt.Fprintf(writer, "%v, %v\n", r.url, r.code)
+    //
+    // writer.Flush()
 
-    writer.Flush()
+    // Add new Route object to array
+    routesObjectsArray = append(routesObjectsArray, r)
 
     // Update progress bar
     // statusString := "Route: " + r.url + "Status Code: " + strconv.Itoa(r.code) + "\n"
@@ -77,7 +82,10 @@ func RecordRouteStatus(routes []string){
     progressBar.Increment()
 
   }
-
   // Finish progress bar
   progressBar.FinishPrint("Finished")
+
+  // Generate report
+  generateHTMLReport(routesObjectsArray)
+
 }
