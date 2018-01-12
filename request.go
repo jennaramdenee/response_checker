@@ -1,14 +1,12 @@
 package main
 
 import (
-  // "bufio"
   "fmt"
   "io/ioutil"
   "net/http"
   "os"
   "regexp"
   "strings"
-  // "strconv"
 
   "gopkg.in/cheggaaa/pb.v1"
 )
@@ -65,13 +63,6 @@ func RecordRouteStatus(routes []string){
 
     // Get response code
     r.Code = response.StatusCode
-
-    // // Write Response to file
-    // writer := bufio.NewWriter(resultFile)
-    // // fmt.Printf("Route: %v, Status Code: %v\n", r.url, r.code)
-    // fmt.Fprintf(writer, "%v, %v\n", r.url, r.code)
-    //
-    // writer.Flush()
 
     // Add new Route object to array
     routesObjectsArray = append(routesObjectsArray, r)
