@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Route Export</title>
+        <style type='text/css'>
+            body {
+                font:14px/20px "Helvetica Neue";
+                width:640px;
+                margin:0 auto;
+                color:#222;
+            }
+            h1 {
+                font:24px/30px "Helvetica Neue";
+                margin:10px 0;
+            }
+            h4 {
+                font:18px/20px "Helvetica Neue";
+                margin:10px 0;
+                display:inline;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Routes Report</h1>
+        <table>
+            {{ range $statusCode, $routes := . }}
+            <tr class="route">
+              <td>
+                -----------------------------------
+              </td>
+              <td class='route-status'>
+                <b> Status Code {{ $statusCode }} : {{ len $routes }} routes </b>
+              </td>
+              <td>
+                -----------------------------------
+              </td>
+            </tr>
+            {{ range $index, $route := $routes }}
+              <tr>
+                <td class='route-url'>
+                  {{ $route.Url }}
+                </td>
+              </tr>
+              {{ end }}
+            </tr>
+          {{ end }}
+        </table>
+    </body>
+</html>
