@@ -10,7 +10,8 @@ import (
   "gopkg.in/cheggaaa/pb.v1"
 )
 
-const baseUrl = "http://varnish-lb-327117095.eu-west-1.elb.amazonaws.com"
+// const baseUrl = "http://varnish-lb-327117095.eu-west-1.elb.amazonaws.com"
+const baseUrl = "https://beta.parliament.uk"
 const routeSource = "https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv"
 
 func RetrieveRouteList() []string {
@@ -30,7 +31,7 @@ func RetrieveRouteList() []string {
   return ParseRoutes(routesReader)
 }
 
-func RecordRouteStatus(routes []string){
+func RecordRouteStatus(routes []string) []Route{
   fmt.Println("Checking route responses\n")
 
   // Create and start progress bar
@@ -72,5 +73,5 @@ func RecordRouteStatus(routes []string){
 
   // Generate report
   generateHTMLReport(routesObjectsArray)
-
+  return routesObjectsArray
 }

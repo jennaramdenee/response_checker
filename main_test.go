@@ -9,35 +9,42 @@ import (
 )
 
 // Request.go
-// func TestRecordRouteStatusOK(t *testing.T) {
-//   removeFiles("results.txt")
-//   testUrl := []string{"/"}
-//
-//   main.RecordRouteStatus(testUrl)
-//
-//   testResultFileContents := readTestFiles("results.txt")
-//
-//   actualResult := string(testResultFileContents)
-//   expectedResult := "/, 200"
-//   if reflect.DeepEqual(actualResult, expectedResult) {
-//     t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
-//   }
-// }
-//
-// func TestRecordRouteStatusNotFound(t *testing.T) {
-//   removeFiles("results.txt")
-//   testUrls := []string {"/someteststuff", "/someotherstuff"}
-//
-//   main.RecordRouteStatus(testUrls)
-//
-//   testResultFileContents := readTestFiles("results.txt")
-//
-//   actualResult := string(testResultFileContents)
-//   expectedResult := "/someteststuff, 404"
-//   if reflect.DeepEqual(actualResult, expectedResult) {
-//     t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
-//   }
-// }
+func TestRecordRouteStatusOK(t *testing.T) {
+  testRoutes := []string{"/"}
+  actualResult := main.RecordRouteStatus(testRoutes)
+  expectedResult := []main.Route{ main.Route{Url: "/", Code: 200} }
+
+  if !reflect.DeepEqual(actualResult, expectedResult) {
+    t.Fatalf("Expected %v but got %v", expectedResult, actualResult)
+  }
+}
+
+func TestRecordRouteStatusNotFound(t *testing.T) {
+  testRoutes := []string {"/someteststuff", "/someotherstuff"}
+  actualResult := main.RecordRouteStatus(testRoutes)
+
+  expectedResult := []main.Route {
+    main.Route{Url: "/someteststuff", Code: 404},
+    main.Route{Url: "/someotherstuff", Code: 404},
+  }
+
+  if !reflect.DeepEqual(actualResult, expectedResult) {
+    t.Fatalf("Expected %v but got %v", expectedResult, actualResult)
+  }
+}
+
+func TestRecordRouteStatusRedirect(t *testing.T) {
+  testRoutes := []string {"/people/lookup?source=mnisId&id=3299"}
+  actualResult := main.RecordRouteStatus(testRoutes)
+
+  expectedResult := []main.Route {
+    main.Route{Url: "/people/lookup?source=mnisId&id=3299", Code: 302},
+  }
+
+  if !reflect.DeepEqual(actualResult, expectedResult) {
+    t.Fatalf("Expected %v but got %v", expectedResult, actualResult)
+  }
+}
 
 // Route.go
 func TestParseInvalidRoute(t *testing.T) {
