@@ -4,14 +4,13 @@ import (
   "fmt"
   "io/ioutil"
   "net/http"
-  "os"
   "regexp"
   "strings"
 
   "gopkg.in/cheggaaa/pb.v1"
 )
 
-const baseUrl = "https://beta.parliament.uk"
+const baseUrl = "http://varnish-lb-327117095.eu-west-1.elb.amazonaws.com"
 const routeSource = "https://raw.githubusercontent.com/ukparliament/ontologies/master/urls.csv"
 
 func RetrieveRouteList() []string {
@@ -32,11 +31,6 @@ func RetrieveRouteList() []string {
 }
 
 func RecordRouteStatus(routes []string){
-  // Create a new file, result.txt (if it doesn't already exist)
-  resultFile, err := os.Create("results.txt")
-  checkError(err)
-  defer resultFile.Close()
-
   fmt.Println("Checking route responses\n")
 
   // Create and start progress bar
@@ -59,7 +53,6 @@ func RecordRouteStatus(routes []string){
     // Visit link
     response, err := client.Get(baseUrl + r.Url)
     checkError(err)
-    defer response.Body.Close()
 
     // Get response code
     r.Code = response.StatusCode
@@ -72,6 +65,7 @@ func RecordRouteStatus(routes []string){
     // progressBar.Prefix(statusString)
     progressBar.Increment()
 
+    defer response.Body.Close()
   }
   // Finish progress bar
   progressBar.FinishPrint("Finished")

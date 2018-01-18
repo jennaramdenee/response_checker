@@ -25,21 +25,21 @@
         <table>
             {{ range $statusCode, $routes := . }}
             <tr class="route">
-              <td>
+              <tr>
                 -----------------------------------
-              </td>
-              <td class='route-status'>
+              </tr>
+              <tr class='route-status'>
                 <b> Status Code {{ $statusCode }} : {{ len $routes }} routes </b>
-              </td>
-              <td>
+              </tr>
+              <tr>
                 -----------------------------------
-              </td>
+              </tr>
             </tr>
             {{ range $index, $route := $routes }}
               <tr>
-                <td class='route-url'>
+                <tr class='route-url'>
                   {{ $route.Url }}
-                </td>
+                </tr>
               </tr>
               {{ end }}
             </tr>

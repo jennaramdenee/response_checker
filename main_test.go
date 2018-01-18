@@ -1,35 +1,90 @@
 package main_test
 
 import (
-  "io/ioutil"
-  "log"
-  "os"
+  // "fmt"
   "reflect"
   "strings"
   "testing"
   "."
 )
 
-func readTestFiles(name string) (testResultFileContents []byte) {
-  testResultFileContents, err := ioutil.ReadFile(name)
-  if err != nil {
-    log.Fatal(err)
+// Request.go
+// func TestRecordRouteStatusOK(t *testing.T) {
+//   removeFiles("results.txt")
+//   testUrl := []string{"/"}
+//
+//   main.RecordRouteStatus(testUrl)
+//
+//   testResultFileContents := readTestFiles("results.txt")
+//
+//   actualResult := string(testResultFileContents)
+//   expectedResult := "/, 200"
+//   if reflect.DeepEqual(actualResult, expectedResult) {
+//     t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
+//   }
+// }
+//
+// func TestRecordRouteStatusNotFound(t *testing.T) {
+//   removeFiles("results.txt")
+//   testUrls := []string {"/someteststuff", "/someotherstuff"}
+//
+//   main.RecordRouteStatus(testUrls)
+//
+//   testResultFileContents := readTestFiles("results.txt")
+//
+//   actualResult := string(testResultFileContents)
+//   expectedResult := "/someteststuff, 404"
+//   if reflect.DeepEqual(actualResult, expectedResult) {
+//     t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
+//   }
+// }
+
+// Route.go
+func TestParseInvalidRoute(t *testing.T) {
+  testRoutesReader := strings.NewReader("On beta,Route,What it is,Page type")
+  testRoutesArray := main.ParseRoutes(testRoutesReader)
+
+  if len(testRoutesArray) != 0 {
+    t.Fatalf("Route heading should not be considered a valid route")
   }
-  return testResultFileContents
 }
 
-func createTestOutput(contents string){
-  testOutput := []byte(contents)
-  err := ioutil.WriteFile("output.txt", testOutput, 0644)
-  if err != nil {
-    log.Fatal(err)
+func TestParseValidRoute(t *testing.T) {
+  testRoutesReader := strings.NewReader("✓,/search,The search form,Search form")
+  actualResult := main.ParseRoutes(testRoutesReader)
+  expectedResult := []string{"/search"}
+
+  if !reflect.DeepEqual(actualResult, expectedResult) {
+    t.Fatalf("Routes on beta should appear as valid route")
   }
 }
 
-func removeFiles(name string){
-  err := os.Remove(name)
-  if err != nil {
-    log.Fatal(err)
+func TestParseRoutesNotOnBeta(t *testing.T) {
+  testRoutesReader := strings.NewReader(",/mps,Something about MPs,Test MP")
+  actualResult := main.ParseRoutes(testRoutesReader)
+  expectedResult := []string{}
+
+  if !reflect.DeepEqual(actualResult, expectedResult) {
+    t.Fatalf("Routes not on beta should not appear as a valid route")
+  }
+}
+
+// test helper method
+func contains(arr []string, route string) bool {
+  for _, r := range arr {
+    if r == route {
+      return true
+    }
+  }
+  return false
+}
+
+func TestManyParseRoutes(t *testing.T) {
+  testRoutesReader := strings.NewReader("✓,/people/a-z,Namespace for navigation of all people,Namespace\n✓,/houses/:house/members,All members of a house ever,Paginated list\n,/mps,Something about MPs,Test MP")
+  actualResult := main.ParseRoutes(testRoutesReader)
+
+  if (!contains(actualResult, "/people/a-z") || !contains(actualResult, "/houses/1AFu55Hs/members")) && !contains(actualResult, "/mps") {
+    t.Fatalf("Not all routes appearing in valid route array")
   }
 }
 
@@ -63,91 +118,5 @@ func TestLettersReplaceResourceId(t *testing.T){
 
   if actualResult[25] != "test/z" {
    t.Fatalf("Incorrect URL formed, got %v, expected %v", actualResult[0], "test/z")
-  }
-}
-
-func TestRecordRouteStatusOK(t *testing.T) {
-  removeFiles("results.txt")
-  testUrl := []string{"/"}
-
-  main.RecordRouteStatus(testUrl)
-
-  testResultFileContents := readTestFiles("results.txt")
-
-  actualResult := string(testResultFileContents)
-  expectedResult := "/, 200"
-  if reflect.DeepEqual(actualResult, expectedResult) {
-    t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
-  }
-}
-
-func TestRecordRouteStatusNotFound(t *testing.T) {
-  removeFiles("results.txt")
-  testUrls := []string {"/someteststuff", "/someotherstuff"}
-
-  main.RecordRouteStatus(testUrls)
-
-  testResultFileContents := readTestFiles("results.txt")
-
-  actualResult := string(testResultFileContents)
-  expectedResult := "/someteststuff, 404"
-  if reflect.DeepEqual(actualResult, expectedResult) {
-    t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
-  }
-}
-
-func TestParseRouteNotRoute(t *testing.T) {
-  removeFiles("results.txt")
-  createTestOutput("On beta,Route,What it is,Page type")
-  main.ParseRoutes()
-
-  testFileContents := readTestFiles("results.txt")
-
-  body := string(testFileContents)
-
-  if strings.Contains(body, "Route") {
-    t.Fatalf("Route should not appear in results.txt file")
-  }
-}
-
-func TestParseRoute(t *testing.T) {
-  removeFiles("results.txt")
-  createTestOutput("✓,/search,The search form,Search form")
-  main.ParseRoutes()
-
-  testFileContents := readTestFiles("results.txt")
-
-  body := string(testFileContents)
-
-  if !strings.Contains(body, "/search") {
-    t.Fatalf("/search should appear in results.txt file")
-  }
-}
-
-func TestParseRoutesNotOnBeta(t *testing.T) {
-  removeFiles("results.txt")
-  createTestOutput(",/mps,Something about MPs,Test MP")
-  main.ParseRoutes()
-
-  testFileContents := readTestFiles("results.txt")
-
-  body := string(testFileContents)
-
-  if strings.Contains(body, "/mps") {
-    t.Fatalf("/mps should not appear in results.txt file")
-  }
-}
-
-func TestManyParseRoutes(t *testing.T) {
-  removeFiles("results.txt")
-  createTestOutput("✓,/people/a-z,Namespace for navigation of all people,Namespace\n✓,/houses/:house/members,All members of a house ever,Paginated list\n,/mps,Something about MPs,Test MP")
-  main.ParseRoutes()
-
-  testFileContents := readTestFiles("results.txt")
-
-  body := string(testFileContents)
-
-  if (!strings.Contains(body, "/people/a-z") || !strings.Contains(body, "/houses/1AFu55Hs/members")) && !strings.Contains(body, "/mps") {
-    t.Fatalf("Not all routes appearing in results.txt file")
   }
 }
