@@ -2,43 +2,40 @@
 <html>
     <head>
         <title>Route Export</title>
-        <style type='text/css'>
-            body {
-                font:14px/20px "Helvetica Neue";
-                width:640px;
-                margin:0 auto;
-                color:#222;
-            }
-            h1 {
-                font:24px/30px "Helvetica Neue";
-                margin:10px 0;
-            }
-            h4 {
-                font:18px/20px "Helvetica Neue";
-                margin:10px 0;
-                display:inline;
-            }
-        </style>
     </head>
     <body>
-        <h1>Routes Report</h1>
+        <h1>Report Summary</h1>
+        <p>
+          -----------------------------------
+        </p>
+        {{ range $statusCode, $routes := . }}
+          <h3>
+            <b> Status Code {{ $statusCode }} : {{ len $routes }} routes </b>
+          </h3>
+        {{ end }}
+        <p>
+          -----------------------------------
+        </p>
+
+        <h1>Report Breakdown</h1>
         <table>
+          <tr>
+            <th> Route </th>
+            <th> Status Code </th>
+          </tr>
           {{ range $statusCode, $routes := . }}
-            <tr>
-              -----------------------------------
-            </tr>
-            <tr>
-              <b> Status Code {{ $statusCode }} : {{ len $routes }} routes </b>
-            </tr>
-            <tr>
-              -----------------------------------
-            </tr>
             {{ range $index, $route := $routes }}
-              <tr>
+            <tr>
+              <td>
                 {{ $route.Url }}
-              </tr>
+              </td>
+              <td>
+                {{ $route.Code }}
+              </td>
+            </tr>
             {{ end }}
           {{ end }}
         </table>
+
     </body>
 </html>

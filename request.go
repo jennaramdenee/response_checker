@@ -35,8 +35,10 @@ func RetrieveRouteList() []string {
 func RecordRouteStatus(routes []string) []Route{
   fmt.Println("Checking route responses\n")
 
+  totalRoutes := len(routes)
+
   // Create and start progress bar
-  progressBar := pb.StartNew(len(routes))
+  progressBar := pb.StartNew(totalRoutes)
 
   // Create array for Route objects
   routesObjectsArray := []Route{}
@@ -50,22 +52,34 @@ func RecordRouteStatus(routes []string) []Route{
   for _, route := range routes {
     // Goroutine to form a route object
     go FormRouteObject(route, c)
-    go AddRouteObjectToArray(routesObjectsArray, c)
     time.Sleep(time.Millisecond * 100)
 
     // Update progress bar
     progressBar.Increment()
-
   }
+
+  // Loop through all items available in the channel
+  for r := range c {
+    // Add to array
+    routesObjectsArray = append(routesObjectsArray, r)
+
+    // Close the channel after all goroutines have run
+    if totalRoutes--; totalRoutes == 0 {
+      close(c)
+    }
+    
+    // Generate report
+    generateHTMLReport(routesObjectsArray)
+  }
+
   // Finish progress bar
   progressBar.FinishPrint("Finished")
+  fmt.Println("Report generated")
 
   // Calculate time elapsed
   elapsedTime := time.Since(startTime)
   fmt.Printf("Process took %s", elapsedTime)
 
-  // Generate report
-  generateHTMLReport(routesObjectsArray)
   return routesObjectsArray
 }
 
@@ -90,12 +104,4 @@ func FormRouteObject(route string, c chan Route) {
   defer response.Body.Close()
 
   c <- r
-}
-
-func AddRouteObjectToArray(routesObjectsArray []Route, c chan Route) []Route {
-  // Get Route from channel
-  r := <- c
-  // Add new Route object to array
-  routesObjectsArray = append(routesObjectsArray, r)
-  return routesObjectsArray
 }

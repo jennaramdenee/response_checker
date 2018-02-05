@@ -1,7 +1,7 @@
 package main
 
 import (
-  "fmt"
+  // "fmt" 
   "html/template"
   "os"
 )
@@ -17,9 +17,8 @@ func generateHTMLReport(routesObjectsArray []Route) {
 
   sortedRouteObjects := sortRoutes(routesObjectsArray)
 
-  fmt.Println("Generating report")
+  // fmt.Println("Generating report")
   err = t.Execute(reportHTMLFile, sortedRouteObjects)
-  fmt.Println("Report generated")
 }
 
 func sortRoutes(routesObjectsArray []Route) map[int][]Route {
