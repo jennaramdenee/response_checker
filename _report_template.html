@@ -23,26 +23,21 @@
     <body>
         <h1>Routes Report</h1>
         <table>
-            {{ range $statusCode, $routes := . }}
-            <tr class="route">
-              <tr>
-                -----------------------------------
-              </tr>
-              <tr class='route-status'>
-                <b> Status Code {{ $statusCode }} : {{ len $routes }} routes </b>
-              </tr>
-              <tr>
-                -----------------------------------
-              </tr>
+          {{ range $statusCode, $routes := . }}
+            <tr>
+              -----------------------------------
+            </tr>
+            <tr>
+              <b> Status Code {{ $statusCode }} : {{ len $routes }} routes </b>
+            </tr>
+            <tr>
+              -----------------------------------
             </tr>
             {{ range $index, $route := $routes }}
               <tr>
-                <tr class='route-url'>
-                  {{ $route.Url }}
-                </tr>
+                {{ $route.Url }}
               </tr>
-              {{ end }}
-            </tr>
+            {{ end }}
           {{ end }}
         </table>
     </body>

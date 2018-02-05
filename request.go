@@ -6,6 +6,7 @@ import (
   "net/http"
   "regexp"
   "strings"
+  "time"
 
   "gopkg.in/cheggaaa/pb.v1"
 )
@@ -40,38 +41,61 @@ func RecordRouteStatus(routes []string) []Route{
   // Create array for Route objects
   routesObjectsArray := []Route{}
 
+  // Create channel
+  c := make(chan Route)
+
+  // Start the timer
+  startTime := time.Now()
+
   for _, route := range routes {
-    // Create new Route object
-    r := Route{Url: route}
-
-    // Create custom http client instance that does not follow redirects
-    client := &http.Client{
-      CheckRedirect: func(request *http.Request, via []*http.Request) error {
-        return http.ErrUseLastResponse
-      },
-    }
-
-    // Visit link
-    response, err := client.Get(baseUrl + r.Url)
-    checkError(err)
-
-    // Get response code
-    r.Code = response.StatusCode
-
-    // Add new Route object to array
-    routesObjectsArray = append(routesObjectsArray, r)
+    // Goroutine to form a route object
+    go FormRouteObject(route, c)
+    go AddRouteObjectToArray(routesObjectsArray, c)
+    time.Sleep(time.Millisecond * 100)
 
     // Update progress bar
-    // statusString := "Route: " + r.url + "Status Code: " + strconv.Itoa(r.code) + "\n"
-    // progressBar.Prefix(statusString)
     progressBar.Increment()
 
-    defer response.Body.Close()
   }
   // Finish progress bar
   progressBar.FinishPrint("Finished")
 
+  // Calculate time elapsed
+  elapsedTime := time.Since(startTime)
+  fmt.Printf("Process took %s", elapsedTime)
+
   // Generate report
   generateHTMLReport(routesObjectsArray)
+  return routesObjectsArray
+}
+
+func FormRouteObject(route string, c chan Route) {
+  // Create new Route object
+  r := Route{Url: route}
+
+  // Create custom http client instance that does not follow redirects
+  client := &http.Client{
+    CheckRedirect: func(request *http.Request, via []*http.Request) error {
+      return http.ErrUseLastResponse
+    },
+  }
+
+  // Visit link
+  response, err := client.Get(baseUrl + r.Url)
+  checkError(err)
+
+  // Get response code
+  r.Code = response.StatusCode
+
+  defer response.Body.Close()
+
+  c <- r
+}
+
+func AddRouteObjectToArray(routesObjectsArray []Route, c chan Route) []Route {
+  // Get Route from channel
+  r := <- c
+  // Add new Route object to array
+  routesObjectsArray = append(routesObjectsArray, r)
   return routesObjectsArray
 }
