@@ -33,7 +33,7 @@ func RetrieveRouteList() []string {
 }
 
 func RecordRouteStatus(routes []string) []Route{
-  fmt.Println("Checking route responses\n")
+  fmt.Printf("Checking route responses for %s\n", baseUrl)
 
   totalRoutes := len(routes)
 
@@ -67,7 +67,7 @@ func RecordRouteStatus(routes []string) []Route{
     if totalRoutes--; totalRoutes == 0 {
       close(c)
     }
-    
+
     // Generate report
     generateHTMLReport(routesObjectsArray)
   }
