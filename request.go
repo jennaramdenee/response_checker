@@ -43,30 +43,34 @@ func RecordRouteStatus(routes []string) []Route{
   // Create array for Route objects
   routesObjectsArray := []Route{}
 
-  // Create channel
-  c := make(chan Route)
-
   // Start the timer
   startTime := time.Now()
 
   for _, route := range routes {
-    // Goroutine to form a route object
-    go FormRouteObject(route, c)
-    time.Sleep(time.Millisecond * 100)
+    // Create new Route object
+    r := Route{Url: route}
 
-    // Update progress bar
-    progressBar.Increment()
-  }
+    // Create custom http client instance that does not follow redirects
+    client := &http.Client{
+      CheckRedirect: func(request *http.Request, via []*http.Request) error {
+        return http.ErrUseLastResponse
+      },
+    }
 
-  // Loop through all items available in the channel
-  for r := range c {
+    // Visit link
+    response, err := client.Get(baseUrl + r.Url)
+    checkError(err)
+
+    // Get response code
+    r.Code = response.StatusCode
+
+    defer response.Body.Close()
+
     // Add to array
     routesObjectsArray = append(routesObjectsArray, r)
 
-    // Close the channel after all goroutines have run
-    if totalRoutes--; totalRoutes == 0 {
-      close(c)
-    }
+    // Update progress bar
+    progressBar.Increment()
 
     // Generate report
     generateHTMLReport(routesObjectsArray)
@@ -81,27 +85,4 @@ func RecordRouteStatus(routes []string) []Route{
   fmt.Printf("Process took %s", elapsedTime)
 
   return routesObjectsArray
-}
-
-func FormRouteObject(route string, c chan Route) {
-  // Create new Route object
-  r := Route{Url: route}
-
-  // Create custom http client instance that does not follow redirects
-  client := &http.Client{
-    CheckRedirect: func(request *http.Request, via []*http.Request) error {
-      return http.ErrUseLastResponse
-    },
-  }
-
-  // Visit link
-  response, err := client.Get(baseUrl + r.Url)
-  checkError(err)
-
-  // Get response code
-  r.Code = response.StatusCode
-
-  defer response.Body.Close()
-
-  c <- r
 }
